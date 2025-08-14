@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Recorder</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <main> 
+        <div id="header">profound</h1></div>
+        <div id="main">
+            <h1>What can we do to improve Bushrod Park?</h1>
+            <button id="startBtn">Start Recording</button>
+            <button id="stopBtn" disabled>Stop Recording</button>
+            <div id="status"></div>
+            <div id="transcript"></div>
+            <div id="claims"></div>
+        </div>
+
+        
+    </main>
+    <script>
+        let recognition;
+        let isRecording = false;
+        
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const status = document.getElementById('status');
+        const transcript = document.getElementById('transcript');
+        const claimsBox = document.getElementById('claims');
+
+        // Check if browser supports speech recognition
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+            
+            let finalTranscript = '';
+            
+            recognition.onresult = function(event) {
+                let interimTranscript = '';
+                
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcriptPart = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        finalTranscript += transcriptPart;
+                    } else {
+                        interimTranscript += transcriptPart;
+                    }
+                }
+                
+                transcript.innerHTML = finalTranscript + '<i>' + interimTranscript + '</i>';
+            };
+            
+            recognition.onstart = function() {
+                status.textContent = 'Recording...';
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+                isRecording = true;
+            };
+            
+            recognition.onend = function() {
+                status.textContent = 'Recording stopped';
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+                isRecording = false;
+                extractClaims(finalTranscript).then(claims => {
+                        claimsBox.innerHTML = `<h3>Extracted Claims:</h3><ul>${claims.split('\n').map(claim => `<li>${claim}</li>`).join('')}</ul>`;
+                    }).catch(error => {
+                        console.error('Error extracting claims:', error);
+                        claimsBox.innerHTML = '<p>Error extracting claims.</p>';
+                    });
+                finalTranscript = ''; // Reset final transcript after processing
+            };
+            
+            recognition.onerror = function(event) {
+                status.textContent = 'Error: ' + event.error;
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+                isRecording = false;
+            };
+            
+        } else {
+            status.textContent = 'Speech recognition not supported';
+            startBtn.disabled = true;
+        }
+
+        startBtn.addEventListener('click', function() {
+            if (recognition && !isRecording) {
+                transcript.innerHTML = '';
+                recognition.start();
+            }
+        });
+
+        stopBtn.addEventListener('click', function() {
+            if (recognition && isRecording) {
+                recognition.stop();
+            }
+        });
+
+        async function extractClaims(transcript) {
+        const response = await fetch('/api/extract-claims', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ transcript: transcript })
+        });
+    
+    const data = await response.json();
+    return data.claims;
+}
+    </script>
+</body>
+</html>

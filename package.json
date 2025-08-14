@@ -1,0 +1,26 @@
+{
+  "name": "profound",
+  "version": "0.0.1",
+  "description": "online space for constructive public conversations",
+  "homepage": "https://github.com/hobuobi/profound#readme",
+  "bugs": {
+    "url": "https://github.com/hobuobi/profound/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hobuobi/profound.git"
+  },
+  "license": "ISC",
+  "author": "Humphrey Obuobi",
+  "type": "commonjs",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "node-fetch": "^2.7.0"
+  }
+}
