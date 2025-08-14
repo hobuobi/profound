@@ -29,6 +29,15 @@
         const transcript = document.getElementById('transcript');
         const claimsBox = document.getElementById('claims');
 
+        //debug 
+
+        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function(e) {
+                console.log('Checkbox changed:', e.target.checked, e.target.value);
+            });
+        });
+
+
         // Initialization: Check if browser supports speech recognition
         if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -71,9 +80,15 @@
                 recordBtn.innerHTML = "Start Recording";
                 //stopBtn.disabled = true;
                 isRecording = false;
+                claimsBox.innerHTML += "<h2 style='margin-bottom:0'>Extracted Claims:</h2><p>This is what we heard. Select the claims that you agree with:</p>";
                 extractClaims(finalTranscript).then(claims => {
-                        claimsBox.innerHTML = `<h3>Extracted Claims:</h3><ul>${claims.split('\n').map(claim => `<li>${claim}</li>`).join('')}</ul>`;
-                    }).catch(error => {
+                    //claimsBox.innerHTML = `<ul>${claims.split('\n').map(claim => `<li>${claim}</li>`).join('')}</ul>`;
+
+                    claimsBox.innerHTML += `${claims.split('\n').map((claim, index) => 
+                        `<input type="checkbox" value="${claim}" id="${index}" checked="checked" />
+                        <label class="claim" for=${index}>${claim}</label>`
+                    ).join('')}`;                    
+                }).catch(error => {
                         console.error('Error extracting claims:', error);
                         claimsBox.innerHTML = '<p>Error extracting claims.</p>';
                     });

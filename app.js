@@ -29,7 +29,7 @@ app.post('/api/extract-claims', async (req, res) => {
                 model: 'gpt-4',
                 messages: [{
                     role: 'user',
-                    content: `Extract distinct claims and beliefs from this transcript as relevant to the question, "What can we do to improve Bushrod Park?". Format as bullet points:
+                    content: `Extract distinct claims and beliefs from this transcript as relevant to the question, "What can we do to improve Bushrod Park?". Put each claim on a new line with no additional text decoration in front of them (like dashes or bullets).\n
 
 "${transcript}"`
                 }],
