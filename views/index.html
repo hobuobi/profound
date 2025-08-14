@@ -8,13 +8,12 @@
 </head>
 <body>
     <main> 
-        <div id="header">profound</h1></div>
+        <div id="header">profound || </h1><span id="status"></div></div>
         <div id="main">
             <h1>What can we do to improve Bushrod Park?</h1>
-            <button id="startBtn">Start Recording</button>
-            <button id="stopBtn" disabled>Stop Recording</button>
-            <div id="status"></div>
-            <div id="transcript"></div>
+            <button id="recordButton">Start Recording</button>
+            <!-- <button id="stopBtn" disabled>Stop Recording</button> -->
+            <textarea id="transcript" value=""></textarea>
             <div id="claims"></div>
         </div>
 
@@ -24,13 +23,13 @@
         let recognition;
         let isRecording = false;
         
-        const startBtn = document.getElementById('startBtn');
-        const stopBtn = document.getElementById('stopBtn');
+        const recordBtn = document.getElementById('recordButton');
+        //const stopBtn = document.getElementById('stopBtn');
         const status = document.getElementById('status');
         const transcript = document.getElementById('transcript');
         const claimsBox = document.getElementById('claims');
 
-        // Check if browser supports speech recognition
+        // Initialization: Check if browser supports speech recognition
         if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             recognition = new SpeechRecognition();
@@ -53,20 +52,24 @@
                     }
                 }
                 
-                transcript.innerHTML = finalTranscript + '<i>' + interimTranscript + '</i>';
+                transcript.value = finalTranscript + '<i>' + interimTranscript + '</i>';
             };
             
             recognition.onstart = function() {
                 status.textContent = 'Recording...';
-                startBtn.disabled = true;
-                stopBtn.disabled = false;
+                recordBtn.removeEventListener('click',startRecording);
+                recordBtn.addEventListener('click',stopRecording);
+                recordBtn.innerHTML = "Stop Recording";
+                //stopBtn.disabled = false;
                 isRecording = true;
             };
             
             recognition.onend = function() {
                 status.textContent = 'Recording stopped';
-                startBtn.disabled = false;
-                stopBtn.disabled = true;
+                recordBtn.removeEventListener('click',stopRecording);
+                recordBtn.addEventListener('click',startRecording);
+                recordBtn.innerHTML = "Start Recording";
+                //stopBtn.disabled = true;
                 isRecording = false;
                 extractClaims(finalTranscript).then(claims => {
                         claimsBox.innerHTML = `<h3>Extracted Claims:</h3><ul>${claims.split('\n').map(claim => `<li>${claim}</li>`).join('')}</ul>`;
@@ -79,28 +82,31 @@
             
             recognition.onerror = function(event) {
                 status.textContent = 'Error: ' + event.error;
-                startBtn.disabled = false;
-                stopBtn.disabled = true;
+                recordBtn.disabled = false;
+                //stopBtn.disabled = true;
                 isRecording = false;
             };
             
         } else {
             status.textContent = 'Speech recognition not supported';
-            startBtn.disabled = true;
+            recordBtn.disabled = true;
         }
 
-        startBtn.addEventListener('click', function() {
+        function startRecording() {
             if (recognition && !isRecording) {
-                transcript.innerHTML = '';
+                transcript.value = '';
                 recognition.start();
             }
-        });
-
-        stopBtn.addEventListener('click', function() {
+        }
+        function stopRecording() {
             if (recognition && isRecording) {
                 recognition.stop();
             }
-        });
+        }
+
+        recordBtn.addEventListener('click', startRecording);
+        
+        //stopBtn.addEventListener('click', stopRecording);
 
         async function extractClaims(transcript) {
         const response = await fetch('/api/extract-claims', {

@@ -24,7 +24,41 @@ main {
 h1 {
     font-size: 3em;
 }
-
+#recordButton {
+    background-color: #F95239;
+    box-shadow: inset -5px -5px 0px rgba(0, 0, 0, 0.1);
+    color: white;
+    font-family: "Geomanist", sans-serif;
+    font-weight: bold;
+    text-transform: uppercase;
+    border: none;
+    padding: 15px 10px;
+    font-size: 1.5rem;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px auto;
+    width: 100%;
+    cursor: pointer;
+}
+#recordButton:hover {
+    background-color: #f95339DD;
+    box-shadow: inset -5px -5px 0px rgba(0, 0, 0, 0);
+}
+#transcript {
+    width: calc(100% - 30px);
+    field-sizing: content;
+    resize: none;
+    overflow-y: hidden;
+    background-color: #4324B3;
+    color: white;
+    border: solid 2px #FFFFFFAA;
+    font-family: "Geomanist", sans-serif;
+    padding: 15px;
+    border-radius: 10px;
+    font-size: 1.2rem;
+}
 @media only screen and (min-width: 900px) {
     main {
         width:33%;
